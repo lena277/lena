@@ -1,4 +1,4 @@
-package com.example.demo;
+package services;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,6 +9,12 @@ import javax.persistence.EntityManagerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import entities.Bus;
+import entities.Student;
+import entities.Teacher;
+import repositories.StudentRepository;
+import repositories.TeacherRepository;
 
 @Service
 public class StudentService {
@@ -26,11 +32,11 @@ public class StudentService {
 		Bus bus = new Bus("lelle");
 		
 		Student student1 = new  Student("lena" , "lena@hotmail.com");
-		student1.setBus(bus);
+		//student1.setBus(bus);
 		repository.save(student1);
 		
 		Student student2 = new  Student("Sujoud" , "sujoud@hotmail.com");
-		student2.setBus(bus);
+		//student2.setBus(bus);
 		
 		repository.save(student2);
 
@@ -43,12 +49,12 @@ public class StudentService {
 	
 	
 	
-	public void savePost(String name  ,String email , String driver) {
+	public void saveStudent(String name  ,String email , String driver) {
 		
 		Bus bus  = new Bus(driver);
 		Student s = new Student(name, email);
 		
-		s.setBus(bus);
+		//s.setBus(bus);
 		repository.save(s);
 	}
 	public String saveTeacher() {
@@ -73,8 +79,8 @@ student.add(student1);
 
 student.add(student2)
 ;
-teacher1.setStudent_id(student);
-teacher2.setStudent_id(student);
+//teacher1.setStudent_id(student);
+//teacher2.setStudent_id(student);
 repository.save(student1);
 repository.save(student1);
 
@@ -99,7 +105,7 @@ teacherRepository.save(teacher2);
 	}
 
 	public Student update(Student student, Integer id) {
-		Student s1 = new Student(student.getStudentName(),student.getStudentEmail(),student.getBus());
+		Student s1 = new Student(student.getStudentName(),student.getStudentEmail());
 	s1.setStudentId(id);
 		repository.save(s1);
 		

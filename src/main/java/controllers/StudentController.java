@@ -1,9 +1,10 @@
-package com.example.demo;
+package controllers;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+import entities.Student;
+import services.StudentService;
+
+@Controller
+
+
 @RequestMapping(value="/students")
 public class StudentController  {
 	
@@ -35,7 +41,7 @@ public class StudentController  {
 		// @ResponseBody means the returned String is the response, not a view name
 		// @RequestParam means it is a parameter from the GET or POST request
 
-		service.savePost(name, email, driver);
+		service.saveStudent(name, email, driver);
 		return "Saved";
 	}
 	@RequestMapping("/saveTeacher")

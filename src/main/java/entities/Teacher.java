@@ -1,4 +1,4 @@
-package com.example.demo;
+package entities;
 
 import java.util.List;
 
@@ -24,10 +24,10 @@ public class Teacher {
 	
 	@Column(name ="Teacher_Email")
 	private String teacherEmail;
-	
-    @ManyToMany(mappedBy = "teacher")
-    private List <Student> student;
-    
+//	
+//    @ManyToMany(mappedBy = "teacher")
+//    private List <Student> student;
+//    
 
     
 
@@ -37,13 +37,13 @@ public class Teacher {
 		this.teacherEmail = teacherEmail;
 	}
 
-	public List<Student> getStudent() {
-		return student;
-	}
-
-	public void setStudent_id(List<Student> student) {
-		this.student= student;
-	}
+//	public List<Student> getStudent() {
+//		return student;
+//	}
+//
+//	public void setStudent_id(List<Student> student) {
+//		this.student= student;
+//	}
 
 	public Integer getTeacherID() {
 		return teacherID;

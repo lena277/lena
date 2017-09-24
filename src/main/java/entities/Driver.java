@@ -1,4 +1,4 @@
-package com.example.demo;
+package entities;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -21,9 +21,9 @@ public class Driver {
 	@Column(name="Driver_Name")
 	private String driver_Name;
 	
-	@OneToOne(cascade = CascadeType.ALL)
+	/*@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "Bus_id")
-	private Bus bus;
+	private Bus bus;*/
 
 	
 
@@ -31,11 +31,11 @@ public class Driver {
 	
 	}
 
-	public Driver(String driver_Name,  Bus bus) {
-		super();
-		this.driver_Name = driver_Name;
-		this.bus= bus;
-	}
+//	public Driver(String driver_Name,  Bus bus) {
+//		super();
+//		this.driver_Name = driver_Name;
+//		this.bus= bus;
+//	}
 
 	public String getDriver_Name() {
 		return driver_Name;
@@ -44,14 +44,14 @@ public class Driver {
 	public void setDriver_Name(String driver_Name) {
 		this.driver_Name = driver_Name;
 	}
-
+/*
 	public Bus getBus() {
 		return bus;
-	}
+	}*/
 
-	public void setBus(Bus bus) {
-		this.bus = bus;;
-	}
+//	public void setBus(Bus bus) {
+//		this.bus = bus;;
+//	}
 	
 	
 

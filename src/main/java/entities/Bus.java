@@ -1,4 +1,4 @@
-package com.example.demo;
+package entities;
 
 
 import java.util.ArrayList;
@@ -28,8 +28,8 @@ public class Bus {
 	@Column(name = "Bus_Driver_Name")
 	private String busDriverName;
 	
-	@OneToOne(mappedBy="bus")
-	private Driver driver;
+	//@OneToOne(mappedBy="bus")
+	//private Driver driver;
 	
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name= "Bus_id" ,referencedColumnName="Bus_id")
