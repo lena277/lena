@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entites.Bus;
+import com.example.demo.entites.Student;
 import com.example.demo.entites.Bus;
 import com.example.demo.entites.Bus;
 import com.example.demo.services.BusService;
@@ -47,8 +49,10 @@ public class BusController {
 	
        
 	 @RequestMapping(method = RequestMethod.POST,value = "/" )
-	 public ResponseEntity<Bus>  create (@RequestBody Bus bus){
-	  
+	 public ResponseEntity<Bus>  create (@RequestBody Bus bus,Errors errors){
+		  
+			 if(errors.hasErrors())
+			       return new ResponseEntity<Bus>(bus, HttpStatus.NOT_ACCEPTABLE);
 		 if (service.isBusExis(bus)) {
 	         return new ResponseEntity<Bus>(HttpStatus.CONFLICT);
 	     }
