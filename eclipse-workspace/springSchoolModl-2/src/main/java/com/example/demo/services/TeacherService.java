@@ -1,9 +1,12 @@
 package com.example.demo.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.Entites.Teacher;
+import com.example.demo.entites.Teacher;
+import com.example.demo.entites.Teacher;
 import com.example.demo.repositories.TeacherRepository;
 
 @Service
@@ -11,8 +14,7 @@ public class TeacherService {
 	@Autowired
 	private TeacherRepository repository;
 
-	
-	public Iterable<Teacher> list(){
+	public List<Teacher> list(){
 		return repository.findAll();
 	}
 	
@@ -20,12 +22,14 @@ public class TeacherService {
 		return repository.findOne(id);
 	}
 	
-	public Iterable<Teacher> findByaName(String name) {
-		return repository.findByTeacherName(name);
+	public List<Teacher> findTeachersByName(String name) {
+		return repository.findByName(name);
 	}
 	
 
-
+    public boolean isTeacherExis(Teacher teacher) {
+    	return repository.exists(teacher.getId());
+    }
 	public Teacher create(Teacher teacher) {
 		return repository.save(teacher);
 	}
@@ -39,16 +43,8 @@ public class TeacherService {
 	}
 
 
-	public Teacher updateById(Teacher teacher, Integer id) {
-		if(repository.findOne(id)!=null) {
+	public void updateById(Teacher teacher) {
 		  
-			Teacher teacher1 = new Teacher(teacher.getTeacherName(),teacher.getTeacherEmail());
-			teacher1.setTeacherID(id);
-		    repository.save(teacher1);  
-		
-		    return teacher1;
-		}
-		return null;
-	}
-
-}
+	    repository.save(teacher);  
+	
+	}}

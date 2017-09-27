@@ -6,6 +6,8 @@ import java.util.Optional;
 import javax.swing.text.html.FormSubmitEvent.MethodType;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.Entites.Student;
+import com.example.demo.entites.Student;
 import com.example.demo.services.StudentService;
 
 @RestController
@@ -33,62 +35,78 @@ public class StudentController  {
 
 	
 	@RequestMapping(value= "" , method = RequestMethod.GET)
-	public Iterable<Student> findAll(){
+	public List<Student> findAll(){
 		
 		return service.list();
 	}
 	
 
 	@RequestMapping(value = "/{id}"  ,method = RequestMethod.GET)
-	public Student findById(@PathVariable Integer id){
-	
-		return service.findById(id);
+	public ResponseEntity<Student> findById(@PathVariable Integer id){
+	    
+	     Student student = service.findById(id);
+	     if (student == null) {
+	           return new ResponseEntity(student, HttpStatus.NOT_FOUND);
+	       }
+	       return new ResponseEntity<Student>(student, HttpStatus.OK);
 	}
 	
-	
+       
 	 @RequestMapping(method = RequestMethod.POST,value = "/" )
-	 public Integer create (@RequestBody Student student){
-	   service.create(student);
-	   return student.getStudentId();
+	 public ResponseEntity<Student>  create (@RequestBody Student student){
+	  
+		 if (service.isStudentExis(student)) {
+	         return new ResponseEntity<Student>(HttpStatus.CONFLICT);
+	     }
+		 service.create(student);
+		 return  new ResponseEntity<Student>(student,HttpStatus.CREATED);
+
 	 }
 	 
 	 
+    
+	 
 	 @RequestMapping(method = RequestMethod.DELETE,value = "/" )
-	 public String deleteAll (){
-	   service.deleteAll();
-	   return"All Students deleted";
+	 public ResponseEntity<Student> deleteAll (){
+	    service.deleteAll();
+        return new ResponseEntity<Student>(HttpStatus.NO_CONTENT);
+
 	 }
 	 
 	 @RequestMapping( method = RequestMethod.DELETE, value = "/{id}")
-	 public String deleteById(@PathVariable Integer id)
+	 public ResponseEntity<Student> deleteById(@PathVariable Integer id)
 	 {
-		 	 
+		 Student currentStudent = service.findById(id);
+		 if (currentStudent == null) {
+	         return new ResponseEntity(currentStudent, HttpStatus.NOT_FOUND);
+	     }
+		 	
 		 service.deleteById(id);
-		 return "Studen with id   = "+ id + "deleted";
+	     return new ResponseEntity<Student>(HttpStatus.NO_CONTENT);
 	 }
+    
+
 	  
 	 
-	 @RequestMapping(method = RequestMethod.PUT,value = "/" )
-	 public void update (){
-	
-	 }
 	
 	 @RequestMapping( method = RequestMethod.PUT, value = "/{id}")
-	 public Student updateById (@RequestBody Student student, @PathVariable Integer id){
-	  return service.updateById(student, id);
+	 public ResponseEntity<Student> updateById (@RequestBody Student student, @PathVariable Integer id){
+	  
+		 Student currentStudent = service.findById(id);
+
+	     if (currentStudent == null) {
+	         return new ResponseEntity(currentStudent, HttpStatus.NOT_FOUND);
+	     }
+
+	     currentStudent.setName(student.getName());
+	     currentStudent.setEmail(student.getEmail());
+
+	     service.updateById(currentStudent);
+	     return new ResponseEntity<Student>(currentStudent, HttpStatus.OK);	
+	     
 	 }
 	 
-	 /*
-		@RequestMapping("/saveBus")
-		public void saveBus() {
-			service.saveBus();
-			
-		}*/
+	
 	 
-
-		/*@RequestMapping("/saveTeacher")
-		public void saveTeacher() {
-			service.saveTeacher();
-			
-		}*/
+	 
 }

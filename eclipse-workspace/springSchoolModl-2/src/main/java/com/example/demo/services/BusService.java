@@ -1,9 +1,12 @@
 package com.example.demo.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.Entites.Bus;
+import com.example.demo.entites.Bus;
+import com.example.demo.entites.Bus;
 import com.example.demo.repositories.BusRepository;
 
 @Service
@@ -11,9 +14,7 @@ public class BusService {
 	@Autowired
 	private BusRepository repository;
 
-	
-	
-	public Iterable<Bus> list(){
+	public List<Bus> list(){
 		return repository.findAll();
 	}
 	
@@ -21,12 +22,14 @@ public class BusService {
 		return repository.findOne(id);
 	}
 	
-	public Iterable<Bus> findByDriverName(String name) {
-		return repository.findByBusDriverName(name);
+	public List<Bus> findDriverName(String name) {
+		return repository.findByDriverName(name);
 	}
 	
 
-
+    public boolean isBusExis(Bus bus) {
+    	return repository.exists(bus.getId());
+    }
 	public Bus create(Bus bus) {
 		return repository.save(bus);
 	}
@@ -40,16 +43,9 @@ public class BusService {
 	}
 
 
-	public Bus updateById(Bus bus, Integer id) {
-		if(repository.findOne(id)!=null) {
+	public void updateById(Bus bus) {
 		  
-			Bus bus1 = new Bus(bus.getBusDriverName());
-	        bus1.setBusId(id);
-		    repository.save(bus1);  
-		
-		    return bus1;
-		}
-		return null;
+	    repository.save(bus);  
+	
 	}
-
 }

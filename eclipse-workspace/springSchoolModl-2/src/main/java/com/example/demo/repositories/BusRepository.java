@@ -1,10 +1,14 @@
 package com.example.demo.repositories;
 
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 
-import com.example.demo.Entites.Bus;
+import com.example.demo.entites.Bus;
 
 public interface BusRepository extends CrudRepository<Bus, Integer> {
 
-	Iterable <Bus> findByBusDriverName(String name);
+	List <Bus> findByDriverName(String name);
+	
+	List <Bus> findAll();
 }

@@ -3,12 +3,14 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.example.demo.Entites.Student;
+import com.example.demo.entites.Bus;
+import com.example.demo.entites.Student;
 
 public interface StudentRepository extends CrudRepository<Student,Integer>{
-	Iterable<Student> findBystudentName(String name);
 	
-	
+    List <Student> findByName(String name);
+    
+	List <Student> findAll();
 	
 	
 
