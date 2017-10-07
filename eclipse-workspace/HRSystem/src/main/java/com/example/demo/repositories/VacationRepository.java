@@ -10,4 +10,5 @@ import com.example.demo.entities.VacationType1;
 @Transactional
 public interface VacationRepository extends VacationBaseRepository<Vacation>{
  List<Vacation> findAll();
+ List<Vacation>findByVacationType(String type);
 }

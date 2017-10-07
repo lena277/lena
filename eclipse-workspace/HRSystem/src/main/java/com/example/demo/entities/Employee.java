@@ -48,26 +48,18 @@ public class Employee {
 	   
 	    @ManyToMany(cascade={CascadeType.ALL},fetch = FetchType.LAZY)
 	    @JsonIgnore
-		@JoinTable(name="EMPLOYEE_MANAGERE",
-		
-			joinColumns={@JoinColumn(name="id")},
-			inverseJoinColumns={@JoinColumn(name="managerId")})
-	    
-
-		private List<Employee> managers = new ArrayList<Employee>();
+		@JoinTable(name="EMPLOYEE_MANAGERE",joinColumns={@JoinColumn(name="id")},inverseJoinColumns={@JoinColumn(name="managerId")})
+	    private List<Employee> managers = new ArrayList<Employee>();
 
 		@ManyToMany(mappedBy="managers",fetch = FetchType.LAZY)
-		@JsonIgnore
-		private List<Employee> employees = new ArrayList<Employee>();
-
-	    
-		@OneToMany(cascade = CascadeType.ALL)
 	    @JsonIgnore
-
-	    @JoinColumn(name="vacation_id")
+		private List<Employee> employees = new ArrayList<Employee>();
+		
+		@OneToMany( cascade = CascadeType.ALL)
+		@JoinColumn(name= "employee_id" ,referencedColumnName="id")
+		@JsonManagedReference(value="employee")
 	    List<Vacation> vacations;
 
-	   
 
 		public List<Employee> getManagers() {
 			return managers;

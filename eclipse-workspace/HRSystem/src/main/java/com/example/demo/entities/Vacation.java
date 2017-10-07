@@ -1,6 +1,8 @@
 package com.example.demo.entities;
 
 
+import java.sql.Date;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -10,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -18,7 +21,9 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Proxy;
 import org.springframework.test.annotation.ProfileValueSourceConfiguration;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -38,25 +43,46 @@ public  abstract class Vacation {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	
 	private Integer id;
 	
-	   @ManyToOne(cascade = CascadeType.ALL)
-	    @JsonIgnore
-
-	    Employee employee;
+    @ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "employee_id")
+    @JsonBackReference(value="employee")
+    Employee employee;
+    
+   
 	   
 	@Column(name = "vacation_type", insertable = false, updatable = false)
-	
 	private String vacationType;
+	
+	private Integer longOfVacation;
+	
+	@NotNull
+	private Date startDate;
+	@NotNull
+	private Date endDate;
+	
+	
+	
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
 	public String getVacationType() {
 		return vacationType;
 	}
-	
-	private Integer longOfVacation;
-
-
-
 	
 	public void setVacationType(String vacationType) {
 		this.vacationType = vacationType;

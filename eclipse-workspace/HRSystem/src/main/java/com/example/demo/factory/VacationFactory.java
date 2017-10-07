@@ -9,21 +9,16 @@ import org.springframework.stereotype.Component;
 import com.example.demo.entities.Vacation;
 
 @Component
-
 public  class VacationFactory {
     public  Vacation createVacation(String type , Vacation vacation){
-        Vacation vacation2 = null;
-
-     
-               if(type.toLowerCase().equals(VactionType.TYPE1.type())) 
-            	
-            	return (VacationType1)vacation;
-            
-            	else if(type.toLowerCase().equals(VactionType.TYPE2.type())) 
-            		return (VacationType2)vacation;
-        
  
-     
+    	Vacation vacation2 = null;
+        if(type.toLowerCase().equals(VactionType.TYPE1.type()))    	
+            return (VacationType1)vacation;
+            
+       	else if(type.toLowerCase().equals(VactionType.TYPE2.type())) 
+       		return (VacationType2)vacation;
+ 
         return vacation2;
    
 }

@@ -13,28 +13,26 @@ import com.example.demo.entities.Vacation;
 import com.example.demo.entities.VacationType1;
 import com.example.demo.entities.VacationType2;
 import com.example.demo.repositories.VacationRepository;
-import com.example.demo.repositories.VacationType1Repository;
-import com.example.demo.repositories.VacationType2Repository;
 
 @Service
 public class VacationService {
 
 
   @Autowired
-  private VacationRepository vacationRepository;
+  private VacationRepository repository;
 
 
 
   public Vacation create(Vacation type) {
 	   
-			 return vacationRepository.save(type);
+			 return repository.save(type);
 	 
 		
   }
 
 
   public List<Vacation> findAll() {
-		 return vacationRepository.findAll();
+		 return repository.findAll();
 					
 			
 	  }
@@ -42,32 +40,34 @@ public class VacationService {
   
  
   public void deleteById(Integer id) {
-	   vacationRepository.delete(id);
+	   repository.delete(id);
    
   }
   public Vacation findById(Integer id ) {
-	  return vacationRepository.findOne(id);
+	  return repository.findOne(id);
   }
   
 
   public boolean isExis(Vacation vacation) {
-  	return vacationRepository.exists(vacation.getId());
+  	return repository.exists(vacation.getId());
   }
 
 	
 
 	public void deleteAll() {
-		vacationRepository.deleteAll();
+		repository.deleteAll();
 	}
 
 
 	public Vacation updateById(Vacation vacation) {
 		  
-					 return vacationRepository.save((VacationType2)vacation);
+					 return repository.save((VacationType2)vacation);
 			 
 	}
   
-
+   public List<Vacation> findByType(String type){
+	   return repository.findByVacationType(type);
+   }
  
   
 }

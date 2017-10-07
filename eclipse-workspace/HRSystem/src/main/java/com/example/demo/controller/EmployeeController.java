@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entities.Employee;
 import com.example.demo.entities.Vacation;
+import com.example.demo.exceptions.AlreadyExistException;
+import com.example.demo.exceptions.EmployeeNotFoundException;
+import com.example.demo.exceptions.NoEmployeeException;
+import com.example.demo.exceptions.VacationNotFoundException;
 import com.example.demo.factory.VacationFactory;
 import com.example.demo.servicies.EmployeeService;
 import com.example.demo.servicies.VacationService;
@@ -31,18 +35,16 @@ public class EmployeeController {
 	
 	
 	@Autowired
-	private VacationService vacationService;
+	private VacationService vacationService;  
 	
 	VacationFactory factory = new VacationFactory();
 
-	
-	
 	@Autowired
 	private EmployeeService service;
 
 	
 	@RequestMapping(value= "" , method = RequestMethod.GET)
-	public Iterable<Employee> findAll(){
+	public List<Employee> findAll(){
 		
 		return service.list();
 	}
@@ -52,10 +54,10 @@ public class EmployeeController {
 	public ResponseEntity<Employee> findById(@PathVariable Integer id){
 	    
 	     Employee employee = service.findById(id);
-	     if (employee == null) {
-	           return new ResponseEntity(employee, HttpStatus.NOT_FOUND);
-	       }
-	       return new ResponseEntity<Employee>(employee, HttpStatus.OK);
+	     if (employee == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	       
+	      return new ResponseEntity<Employee>(employee, HttpStatus.OK);
 	
 	}
 	
@@ -63,10 +65,10 @@ public class EmployeeController {
 	public ResponseEntity<?> findManagersByEmployeeId(@PathVariable Integer id){
 	    
 	     Employee employee = service.findById(id);
-	     if (employee == null) {
-	           return new ResponseEntity(employee, HttpStatus.NOT_FOUND);
-	       }
-	       return new ResponseEntity<List<Employee>>(employee.getManagers(), HttpStatus.OK);
+	     if (employee == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	       
+	     return new ResponseEntity<List<Employee>>(employee.getManagers(), HttpStatus.OK);
 	}
 	
 	
@@ -74,10 +76,13 @@ public class EmployeeController {
 	public ResponseEntity<?> findVacationsByEmployeeId(@PathVariable Integer id){
 	    
 	     Employee employee = service.findById(id);
-	     if (employee == null) {
-	           return new ResponseEntity(employee, HttpStatus.NOT_FOUND);
-	       }
-	       return new ResponseEntity<List<Vacation>>(employee.getVacations(),  HttpStatus.OK);
+	     if (employee == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	       
+	     if(employee.getVacations().size()==0)
+	    	 throw new VacationNotFoundException();
+	     
+	      return new ResponseEntity<List<Vacation>>(employee.getVacations(),  HttpStatus.OK);
 	}
 	
 	
@@ -86,16 +91,15 @@ public class EmployeeController {
 	public ResponseEntity<?> addVacationsByEmployeeId(@PathVariable Integer id ,@RequestBody Vacation vacation){
 	    
 	     Employee employee = service.findById(id);
-	     if (employee == null) {
-	           return new ResponseEntity(employee, HttpStatus.NOT_FOUND);
-	       }
+	     if (employee == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	       
 	     
 	 	Vacation vacation2 = factory.createVacation(vacation.getVacationType(), vacation);
-
         vacation2.setEmployee(employee);
         employee.getVacations().add(vacation2);
         service.create(employee);
-		 return  new ResponseEntity<Employee>(employee,HttpStatus.CREATED);
+		return  new ResponseEntity<Employee>(employee,HttpStatus.CREATED);
 
 		 
 	}
@@ -104,14 +108,14 @@ public class EmployeeController {
 	    
 	     Employee employee = service.findById(id);
 	     Employee manger = service.findById(idManger);
-	     if (employee == null || manger==null ) {
-	           return new ResponseEntity(HttpStatus.NOT_FOUND);
-	       }
+	     if (employee == null || manger==null ) 
+	    	 throw new EmployeeNotFoundException(id);
+	       
 	     for (Employee manger2: employee.getManagers()  ) 
 			if(manger2.getId() == idManger)
-	       return new ResponseEntity<Employee>(manger2, HttpStatus.OK);
+	           return new ResponseEntity<Employee>(manger2, HttpStatus.OK);
 			
-         return new ResponseEntity(HttpStatus.NOT_FOUND);
+    	 throw new EmployeeNotFoundException(id);
 
 	  
 	}
@@ -120,11 +124,12 @@ public class EmployeeController {
 	 @ResponseBody
 	 public ResponseEntity<Employee>  create (@RequestBody @Valid Employee employee,Errors errors){
 		  
-			 if(errors.hasErrors())
-			       return new ResponseEntity<Employee>(employee, HttpStatus.NOT_ACCEPTABLE);
-		 if (service.isEmployeeExis(employee)) {
-	         return new ResponseEntity<Employee>(HttpStatus.CONFLICT);
-	     }
+	      if(errors.hasErrors())
+			  return new ResponseEntity<Employee>(employee, HttpStatus.NOT_ACCEPTABLE);
+	      
+		 if (service.isEmployeeExis(employee)) 
+              throw new AlreadyExistException(employee.getId());
+
 		 service.create(employee);
 		 return  new ResponseEntity<Employee>(employee,HttpStatus.CREATED);
 
@@ -135,55 +140,57 @@ public class EmployeeController {
 	 
 	 @RequestMapping(method = RequestMethod.DELETE,value = "/" )
 	 public ResponseEntity<Employee> deleteAll (){
-	    service.deleteAll();
-        return new ResponseEntity<Employee>(HttpStatus.NO_CONTENT);
+	    
+		service.deleteAll();
+        throw new NoEmployeeException();
 
 	 }
 	 
 	 @RequestMapping( method = RequestMethod.DELETE, value = "/{id}")
-	 public ResponseEntity<Employee> deleteById(@PathVariable Integer id)
-	 {
+	 public ResponseEntity<Employee> deleteById(@PathVariable Integer id){
+		 
 		 Employee currentEmployee = service.findById(id);
-		 if (currentEmployee == null) {
-	         return new ResponseEntity(currentEmployee, HttpStatus.NOT_FOUND);
-	     }
-		 	
+		 if (currentEmployee == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	     	
 		 service.deleteById(id);
 	     return new ResponseEntity<Employee>(HttpStatus.NO_CONTENT);
 	 }
     
 	 @RequestMapping( method = RequestMethod.DELETE, value = "/{id}/mangers")
-	 public ResponseEntity<Employee> deleteManger(@PathVariable Integer id)
-	 {
+	 public ResponseEntity<Employee> deleteManger(@PathVariable Integer id){
+		 
 		 Employee currentEmployee = service.findById(id);
-		 if (currentEmployee == null) {
-	         return new ResponseEntity(currentEmployee, HttpStatus.NOT_FOUND);
-	     }
+		 if (currentEmployee == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	     
 		 	
 		 currentEmployee.getManagers().clear();
 		 service.create(currentEmployee);
 		 return new ResponseEntity<Employee>(HttpStatus.NO_CONTENT);
 	 }
+	 
+	 
 	 @RequestMapping( method = RequestMethod.DELETE, value = "/{id}/mangers/{idManger}")
-	 public ResponseEntity<Employee> deleteMangerById(@PathVariable Integer id,@PathVariable Integer idManger)
-	 {
+	 public ResponseEntity<Employee> deleteMangerById(@PathVariable Integer id,@PathVariable Integer idManger) {
+		
 		 Employee currentEmployee = service.findById(id);
 		 Employee manger = service.findById(idManger);
 
-		 if (currentEmployee == null || manger ==null ) {
-	         return new ResponseEntity(HttpStatus.NOT_FOUND);
-	     }
-		 	List<Employee> employees = currentEmployee.getManagers();
+		 if (currentEmployee == null || manger ==null ) 
+	    	 throw new EmployeeNotFoundException(id);
+	     
+		List<Employee> employees = currentEmployee.getManagers();
 		for (int i = 0; i < employees.size(); i++) 
-			if(employees.get(i).getId() == idManger)
-				{employees.remove(i);
+			if(employees.get(i).getId() == idManger){		
+				employees.remove(i);
 				currentEmployee.setManagers(employees);
-				 service.create(currentEmployee);
-				 return new ResponseEntity<Employee>(HttpStatus.NO_CONTENT);
+			    service.create(currentEmployee);
+			    return new ResponseEntity<Employee>(HttpStatus.NO_CONTENT);
 
 				}
 		
-        return new ResponseEntity(HttpStatus.NOT_FOUND);
+    	 throw new EmployeeNotFoundException(id);
 	
 	 }
 
@@ -196,7 +203,7 @@ public class EmployeeController {
 		 Employee currentEmployee = service.findById(id);
 
 	     if (currentEmployee == null) {
-	         return new ResponseEntity(currentEmployee, HttpStatus.NOT_FOUND);
+	    	 throw new EmployeeNotFoundException(id);
 	     }
 
 	     currentEmployee.setName(employee.getName());
@@ -206,26 +213,28 @@ public class EmployeeController {
 	     return new ResponseEntity<Employee>(currentEmployee, HttpStatus.OK);	
 	     
 	 }
- @RequestMapping( method = RequestMethod.POST, value = "/{id}/managers/" )
+	 
+	 
+     @RequestMapping( method = RequestMethod.POST, value = "/{id}/managers/" )
 	 @ResponseBody
-
 	 public ResponseEntity<Employee> addEmployee(@RequestBody @Valid Employee employee,@PathVariable Integer id , Errors errors){
 		 Employee currentEmployee = service.findById(id);
  		
-		 if (currentEmployee == null) {
-	         return new ResponseEntity(currentEmployee, HttpStatus.NOT_FOUND);
-	     }
+		 if (currentEmployee == null) 
+	    	 throw new EmployeeNotFoundException(id);
 
 		 if(errors.hasErrors())
 		       return new ResponseEntity<Employee>(employee, HttpStatus.NOT_ACCEPTABLE);
-	 if (service.isEmployeeExis(employee)) {
-       return new ResponseEntity<Employee>(HttpStatus.CONFLICT);
-   }
-	employee.getEmployees().add(currentEmployee);
-	 currentEmployee.getManagers().add(employee);
-	 service.create(currentEmployee);
+		 
+	     if (service.isEmployeeExis(employee)) 
+               throw new AlreadyExistException(employee.getId());
 
-     return new ResponseEntity<Employee>(currentEmployee, HttpStatus.CREATED);	
+     	 employee.getEmployees().add(currentEmployee);
+	     currentEmployee.getManagers().add(employee);
+	     service.create(currentEmployee);
 
-		
-}}
+        return new ResponseEntity<Employee>(currentEmployee, HttpStatus.CREATED);	
+	
+        }
+     
+     }
