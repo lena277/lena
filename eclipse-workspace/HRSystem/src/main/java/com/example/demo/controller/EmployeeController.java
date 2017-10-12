@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entities.Employee;
+import com.example.demo.entities.Role;
 import com.example.demo.entities.Vacation;
 import com.example.demo.exceptions.AlreadyExistException;
 import com.example.demo.exceptions.EmployeeNotFoundException;
@@ -43,7 +44,7 @@ public class EmployeeController {
 	private EmployeeService service;
 
 	
-	@RequestMapping(value= "" , method = RequestMethod.GET)
+	@RequestMapping(value= "" , method = RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
 	public List<Employee> findAll(){
 		
 		return service.list();
@@ -86,7 +87,7 @@ public class EmployeeController {
 	}
 	
 	
-	@RequestMapping(value = "/{id}/vacations"  ,method = RequestMethod.POST)
+	@RequestMapping(value = "/{id}/vacations"  ,method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> addVacationsByEmployeeId(@PathVariable Integer id ,@RequestBody Vacation vacation){
 	    
@@ -103,6 +104,21 @@ public class EmployeeController {
 
 		 
 	}
+	
+	@RequestMapping(value = "/{id}/roles"  ,method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> addRolesByEmployeeId(@PathVariable Integer id ,@RequestBody Role role){
+	    
+	     Employee employee = service.findById(id);
+	     if (employee == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	    
+        employee.getRoles().add(role);
+        service.create(employee);
+		return  new ResponseEntity<Employee>(employee,HttpStatus.CREATED); 
+	}
+
+	
 	@RequestMapping(value = "/{id}/managers/{idManger}"  ,method = RequestMethod.GET)
 	public ResponseEntity<Employee> findManagerByMangerId(@PathVariable Integer id ,@PathVariable Integer idManger ){
 	    
@@ -120,16 +136,15 @@ public class EmployeeController {
 	  
 	}
 	
-	 @RequestMapping(method = RequestMethod.POST,value = "/" )
+	 @RequestMapping(method = RequestMethod.POST,value = "/",produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE )
 	 @ResponseBody
-	 public ResponseEntity<Employee>  create (@RequestBody @Valid Employee employee,Errors errors){
+	 public ResponseEntity<Employee>  create (@RequestBody Employee employee,Errors errors){
 		  
 	      if(errors.hasErrors())
 			  return new ResponseEntity<Employee>(employee, HttpStatus.NOT_ACCEPTABLE);
 	      
-		 if (service.isEmployeeExis(employee)) 
-              throw new AlreadyExistException(employee.getId());
-
+	      
+	   
 		 service.create(employee);
 		 return  new ResponseEntity<Employee>(employee,HttpStatus.CREATED);
 
@@ -206,16 +221,15 @@ public class EmployeeController {
 	    	 throw new EmployeeNotFoundException(id);
 	     }
 
-	     currentEmployee.setName(employee.getName());
-	     currentEmployee.setEmail(employee.getEmail());
+	     employee.setId(id);
 
-	     service.updateById(currentEmployee);
+	     service.updateById(employee);
 	     return new ResponseEntity<Employee>(currentEmployee, HttpStatus.OK);	
 	     
 	 }
 	 
 	 
-     @RequestMapping( method = RequestMethod.POST, value = "/{id}/managers/" )
+     @RequestMapping( method = RequestMethod.POST, value = "/{id}/managers/",produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE )
 	 @ResponseBody
 	 public ResponseEntity<Employee> addEmployee(@RequestBody @Valid Employee employee,@PathVariable Integer id , Errors errors){
 		 Employee currentEmployee = service.findById(id);

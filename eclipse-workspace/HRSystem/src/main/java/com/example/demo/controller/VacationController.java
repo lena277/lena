@@ -49,7 +49,7 @@ public class VacationController {
 
 
 	
-	 @RequestMapping(method = RequestMethod.POST,value = "" )
+	 @RequestMapping(method = RequestMethod.POST,value = "" ,produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	 @ResponseBody
 	 public ResponseEntity<Vacation>  create (@RequestBody  Vacation vacation){
 		Vacation vacation2 = factory.createVacation(vacation.getVacationType(), vacation);

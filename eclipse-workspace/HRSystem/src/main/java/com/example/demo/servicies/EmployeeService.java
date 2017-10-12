@@ -35,9 +35,7 @@ public class EmployeeService {
 	public void deleteById(Integer inttger) {
 		 repository.delete(inttger);
 	}
-/*	public List<Employee> getManagers () {
-	return repository.findByIsManger(true);
-	}*/
+
 	public void deleteAll() {
 		 repository.deleteAll();
 	}

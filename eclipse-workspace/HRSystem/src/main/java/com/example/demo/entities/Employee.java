@@ -20,6 +20,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -31,107 +33,141 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name = "employee")
 public class Employee {
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO )
+	private Integer id;
+
+	@Size(min=2, max=30) 
+	private String name;
+
+
+	@NotEmpty @Email
+	private String email;
+    
+	private String password;
 	
-		@Id
-		@GeneratedValue(strategy=GenerationType.IDENTITY )
-		private Integer id;
-		
-		@Size(min=2, max=30) 
-	    private String name;
-		
-		
-		@NotEmpty @Email
-	    private String email;
-	     
-	    @NotNull @Min(18) @Max(100)
-	    private Integer age;
-	   
-	    @ManyToMany(cascade={CascadeType.ALL},fetch = FetchType.LAZY)
-	    @JsonIgnore
-		@JoinTable(name="EMPLOYEE_MANAGERE",joinColumns={@JoinColumn(name="id")},inverseJoinColumns={@JoinColumn(name="managerId")})
-	    private List<Employee> managers = new ArrayList<Employee>();
+	@NotNull @Min(18) @Max(100)
+	private Integer age;
 
-		@ManyToMany(mappedBy="managers",fetch = FetchType.LAZY)
-	    @JsonIgnore
-		private List<Employee> employees = new ArrayList<Employee>();
-		
-		@OneToMany( cascade = CascadeType.ALL)
-		@JoinColumn(name= "employee_id" ,referencedColumnName="id")
-		@JsonManagedReference(value="employee")
-	    List<Vacation> vacations;
+	@OneToMany(cascade = CascadeType.ALL , fetch= FetchType.EAGER)
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private List<Role> roles;
+	
+	@ManyToMany(cascade={CascadeType.PERSIST},fetch = FetchType.LAZY)
+	@JoinTable(name="EMPLOYEE_MANAGERE",joinColumns={@JoinColumn(name="id")},inverseJoinColumns={@JoinColumn(name="managerId")})
+	@JsonBackReference(value="employees")
+	private List<Employee> managers = new ArrayList<Employee>();
+
+	@ManyToMany(mappedBy="managers",fetch = FetchType.LAZY)
+	@JsonBackReference(value="managers")
+	private List<Employee> employees = new ArrayList<Employee>();
+
+	@OneToMany( cascade = CascadeType.ALL)
+	@JoinColumn(name= "employee_id" ,referencedColumnName="id")
+	@JsonManagedReference(value="employee")
+	List<Vacation> vacations;
 
 
-		public List<Employee> getManagers() {
-			return managers;
-		}
+	public List<Employee> getManagers() {
+		return managers;
+	}
 
-		public void setManagers(List<Employee> managers) {
-			this.managers = managers;
-		}
+	public void setManagers(List<Employee> managers) {
+		this.managers = managers;
+	}
 
-		public List<Employee> getEmployees() {
-			return employees;
-		}
+	public List<Role> getRoles() {
+		return roles;
+	}
 
-		public void setEmployees(List<Employee> employees) {
-			this.employees = employees;
-		}
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
 
-		public Integer getAge() {
-			return age;
-		}
+	public List<Employee> getEmployees() {
+		return employees;
+	}
 
-		public void setAge(Integer age) {
-			this.age = age;
-		}
+	public void setEmployees(List<Employee> employees) {
+		this.employees = employees;
+	}
+
+	public Integer getAge() {
+		return age;
+	}
+
+	public void setAge(Integer age) {
+		this.age = age;
+	}
 
 
-		
-	    public Employee() {
-			
-		}
-	    
-		public Employee(String name, String email , Integer age ) {
-			this.name = name;
-			this.email = email;
-			this.age = age;
-			
-		}
-		
-		
-		
-		public List<Vacation> getVacations() {
-			return vacations;
-		}
 
-		public void setVacations(List<Vacation> vacations) {
-			this.vacations = vacations;
-		}
+	public String getPassword() {
+		return password;
+	}
 
-		public Integer getId() {
-			return id;
-		}
-		
-		public void setId(Integer id) {
-			this.id = id;
-		}
-		
-		public String getName() {
-			return name;
-		}
-		
-		public void setName(String name) {
-			this.name = name;
-		}
-		
-		public String getEmail() {
-			return email;
-		}
-		
-		public void setEmail(String email) {
-			this.email = email;
-		}
-		
-		
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public Employee() {
+
+	}
+
+	public Employee(String name, String email , Integer age,List<Employee > manager ) {
+		this.name = name;
+		this.email = email;
+		this.age = age;
+		this.managers = manager;
+
+	}
+
+
+
+	public Employee(Employee em) {
+		this.name = em.getName();
+		this.email = em.getEmail();
+		this.age = em.getAge();
+		this.managers = em.getManagers();
+		this.password = em.getPassword();
+        this.id = em.getId();
+        this.vacations = em.getVacations();
+        this.roles = em.getRoles();
+	}
+
+	public List<Vacation> getVacations() {
+		return vacations;
+	}
+
+	public void setVacations(List<Vacation> vacations) {
+		this.vacations = vacations;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+
 
 }
