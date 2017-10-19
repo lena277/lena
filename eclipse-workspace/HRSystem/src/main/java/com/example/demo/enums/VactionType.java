@@ -1,8 +1,8 @@
 package com.example.demo.enums;
 
 public enum VactionType { 
-TYPE1("type1"), 
-TYPE2("type2"); 
+SICK("sick"), 
+PERSONAL("personal"); 
  
 private String type; 
 

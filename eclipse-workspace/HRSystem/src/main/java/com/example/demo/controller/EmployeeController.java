@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,11 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.entities.Employee;
 import com.example.demo.entities.Role;
 import com.example.demo.entities.Vacation;
+import com.example.demo.entities.VacationApproval;
 import com.example.demo.exceptions.AlreadyExistException;
 import com.example.demo.exceptions.EmployeeNotFoundException;
 import com.example.demo.exceptions.NoEmployeeException;
 import com.example.demo.exceptions.VacationNotFoundException;
 import com.example.demo.factory.VacationFactory;
+import com.example.demo.repositories.VacationApprovalRespority;
 import com.example.demo.servicies.EmployeeService;
 import com.example.demo.servicies.VacationService;
 
@@ -35,8 +38,13 @@ import com.example.demo.servicies.VacationService;
 public class EmployeeController {
 	
 	
+	
 	@Autowired
 	private VacationService vacationService;  
+	
+	@Autowired
+	private VacationApprovalRespority approval;  
+	
 	
 	VacationFactory factory = new VacationFactory();
 
@@ -51,7 +59,7 @@ public class EmployeeController {
 	}
 	
 
-	@RequestMapping(value = "/{id}"  ,method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}"  ,method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Employee> findById(@PathVariable Integer id){
 	    
 	     Employee employee = service.findById(id);
@@ -62,7 +70,7 @@ public class EmployeeController {
 	
 	}
 	
-	@RequestMapping(value = "/{id}/managers"  ,method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/managers"  ,method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> findManagersByEmployeeId(@PathVariable Integer id){
 	    
 	     Employee employee = service.findById(id);
@@ -72,8 +80,74 @@ public class EmployeeController {
 	     return new ResponseEntity<List<Employee>>(employee.getManagers(), HttpStatus.OK);
 	}
 	
+	@RequestMapping(value = "/{id}/vacationApprovals"  ,method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> findVacationApprovalsByEmployeeId(@PathVariable Integer id){
+	    
+	     Employee employee = service.findById(id);
+	     if (employee == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	       
+	     return new ResponseEntity<List<VacationApproval>>(employee.getVacationApproval(), HttpStatus.OK);
+	}
 	
-	@RequestMapping(value = "/{id}/vacations"  ,method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/vacationApprovals/{approveId}/approve"  ,method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> approveVacationApprovalsByEmployeeId(@PathVariable Integer id,@PathVariable Integer approveId){
+	    
+	     Employee employee = service.findById(id);
+	     if (employee == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	     
+	     VacationApproval vacationApproval = approval.findOne(approveId);
+	     if (vacationApproval == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	     
+	     vacationApproval.setApprove(true);
+	     
+	     approval.save(vacationApproval);
+	     
+	     Vacation vacation = vacationApproval.vacation;
+	     for(VacationApproval app:vacation.getVacationApproval())
+	    	 if(app.isApprove()){
+	    		 vacation.setValidate(true);
+	    		 vacationService.updateById(vacation);
+	    	 }
+	     
+	     return new ResponseEntity<List<Role>>(employee.getRoles(), HttpStatus.OK);
+
+	}
+	@RequestMapping(value = "/{id}/vacationApprovals/{approveId}/reject"  ,method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> rejectVacationApprovalsByEmployeeId(@PathVariable Integer id,@PathVariable Integer approveId){
+	    
+	     Employee employee = service.findById(id);
+	     if (employee == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	     
+	     VacationApproval vacationApproval = approval.findOne(approveId);
+	     if (vacationApproval == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	     
+	     vacationApproval.setApprove(false);
+	     
+	     approval.save(vacationApproval);
+	     Vacation vacation = vacationApproval.vacation;
+	     vacation.setValidate(false);
+	     vacationService.updateById(vacation);
+	    	     
+	     return new ResponseEntity<List<Role>>(employee.getRoles(), HttpStatus.OK);
+
+	}
+	@RequestMapping(value = "/{id}/roles"  ,method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> findRolesByEmployeeId(@PathVariable Integer id){
+	    
+	     Employee employee = service.findById(id);
+	     if (employee == null) 
+	    	 throw new EmployeeNotFoundException(id);
+	       
+	     return new ResponseEntity<List<Role>>(employee.getRoles(), HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "/{id}/vacations"  ,method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> findVacationsByEmployeeId(@PathVariable Integer id){
 	    
 	     Employee employee = service.findById(id);
@@ -87,10 +161,22 @@ public class EmployeeController {
 	}
 	
 	
+	
+    @PreAuthorize("{hasRole('ADMIN')}")
+    
+	@RequestMapping(value = "/vacationRequests"  ,method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> findVacationRequestsByEmployeeId(){
+	    
+	     
+	      return new ResponseEntity<List<Vacation>>(vacationService.findByValidatio(false),  HttpStatus.OK);
+	}
+	
+
+	
 	@RequestMapping(value = "/{id}/vacations"  ,method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> addVacationsByEmployeeId(@PathVariable Integer id ,@RequestBody Vacation vacation){
-	    
+
 	     Employee employee = service.findById(id);
 	     if (employee == null) 
 	    	 throw new EmployeeNotFoundException(id);
@@ -99,7 +185,14 @@ public class EmployeeController {
 	 	Vacation vacation2 = factory.createVacation(vacation.getVacationType(), vacation);
         vacation2.setEmployee(employee);
         employee.getVacations().add(vacation2);
+        
+        for(Employee manager:employee.getManagers()) {
+        	VacationApproval vacationAppreoval = new VacationApproval(vacation2 , manager);
+        	manager.getVacationApproval().add(vacationAppreoval);
+        	service.updateById(manager);
+        }
         service.create(employee);
+
 		return  new ResponseEntity<Employee>(employee,HttpStatus.CREATED);
 
 		 
@@ -114,12 +207,13 @@ public class EmployeeController {
 	    	 throw new EmployeeNotFoundException(id);
 	    
         employee.getRoles().add(role);
+        role.getEmployees().add(employee);
         service.create(employee);
 		return  new ResponseEntity<Employee>(employee,HttpStatus.CREATED); 
 	}
 
 	
-	@RequestMapping(value = "/{id}/managers/{idManger}"  ,method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/managers/{idManger}"  ,method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Employee> findManagerByMangerId(@PathVariable Integer id ,@PathVariable Integer idManger ){
 	    
 	     Employee employee = service.findById(id);
@@ -250,5 +344,5 @@ public class EmployeeController {
         return new ResponseEntity<Employee>(currentEmployee, HttpStatus.CREATED);	
 	
         }
-     
+
      }

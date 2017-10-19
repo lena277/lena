@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entities.Employee;
 import com.example.demo.entities.Vacation;
-import com.example.demo.entities.VacationType1;
-import com.example.demo.entities.VacationType2;
+import com.example.demo.entities.SickVacation;
+import com.example.demo.entities.PersonalVacation;
 import com.example.demo.repositories.VacationRepository;
 
 @Service
@@ -43,6 +43,8 @@ public class VacationService {
 	   repository.delete(id);
    
   }
+  
+  
   public Vacation findById(Integer id ) {
 	  return repository.findOne(id);
   }
@@ -61,7 +63,7 @@ public class VacationService {
 
 	public Vacation updateById(Vacation vacation) {
 		  
-					 return repository.save((VacationType2)vacation);
+	 return repository.save(vacation);
 			 
 	}
   
@@ -69,5 +71,7 @@ public class VacationService {
 	   return repository.findByVacationType(type);
    }
  
-  
+  public List<Vacation> findByValidatio(boolean isValidate){
+	  return repository.findByIsValidate(isValidate);
+  }
 }

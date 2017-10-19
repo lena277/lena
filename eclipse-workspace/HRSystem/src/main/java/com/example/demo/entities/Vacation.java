@@ -2,6 +2,7 @@ package com.example.demo.entities;
 
 
 import java.sql.Date;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,6 +15,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
@@ -35,21 +37,27 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @JsonTypeInfo(use =JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "vacationType")
 @JsonSubTypes({
-    @Type(name = "type1", value = VacationType1.class),
-    @Type(name = "type2", value = VacationType2.class)
+    @Type(name = "sick", value = SickVacation.class),
+    @Type(name = "personal", value = PersonalVacation.class)
 })
 @Proxy(lazy=false) 
 public  abstract class Vacation {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	
     @ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "employee_id")
-    @JsonBackReference(value="employee")
-    Employee employee;
+    @JsonBackReference(value = "employee")
+    private Employee employee;
     
+	@OneToMany( cascade = CascadeType.ALL)
+	@JoinColumn(name= "vacation_id" ,referencedColumnName="id")
+	@JsonManagedReference(value="vacation")
+    private List<VacationApproval> vacationApproval;
+    
+    private boolean isValidate;
    
 	   
 	@Column(name = "vacation_type", insertable = false, updatable = false)
@@ -62,8 +70,22 @@ public  abstract class Vacation {
 	@NotNull
 	private Date endDate;
 	
-	
-	
+	public List<VacationApproval> getVacationApproval() {
+		return vacationApproval;
+	}
+
+	public void setVacationApproval(List<VacationApproval> vacationApproval) {
+		this.vacationApproval = vacationApproval;
+	}
+
+	public boolean isValidate() {
+		return isValidate;
+	}
+
+	public void setValidate(boolean validate) {
+		this.isValidate = validate;
+	}
+
 	public Date getStartDate() {
 		return startDate;
 	}

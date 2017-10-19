@@ -6,26 +6,26 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
  
 @Entity
-@DiscriminatorValue("type1")
-public class VacationType1 extends Vacation {
+@DiscriminatorValue("personal")
+public class PersonalVacation extends Vacation {
  
-	private Integer numTime;
+	private Integer numTime2;
 	
-    public VacationType1() {
+    public PersonalVacation() {
 	// TODO Auto-generated constructor stub
     }
  
-    public VacationType1(Integer numTime  ) {
+    public PersonalVacation(Integer numTime  ) {
         super();
-        this.numTime = numTime;
+        this.numTime2 = numTime;
 	}
 
 	public Integer getnumTime() {
-		return numTime;
+		return numTime2;
 	}
  
 	public void setnumTime(Integer numTime) {
-		this.numTime = numTime;
+		this.numTime2 = numTime;
 	}
 
 	public void inform() {

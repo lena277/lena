@@ -50,11 +50,19 @@ public class Employee {
 	@NotNull @Min(18) @Max(100)
 	private Integer age;
 
-	@OneToMany(cascade = CascadeType.ALL , fetch= FetchType.EAGER)
+	@ManyToMany(cascade={CascadeType.MERGE} , fetch= FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	@JsonBackReference(value="roles")
 	private List<Role> roles;
 	
-	@ManyToMany(cascade={CascadeType.PERSIST},fetch = FetchType.LAZY)
+	
+	
+    @OneToMany( cascade = CascadeType.ALL)
+    @JoinColumn(name= "approver_id" ,referencedColumnName="id")
+	@JsonManagedReference(value="approver")
+    private List<VacationApproval> vacationApproval;
+	
+	@ManyToMany(cascade={CascadeType.MERGE},fetch = FetchType.LAZY)
 	@JoinTable(name="EMPLOYEE_MANAGERE",joinColumns={@JoinColumn(name="id")},inverseJoinColumns={@JoinColumn(name="managerId")})
 	@JsonBackReference(value="employees")
 	private List<Employee> managers = new ArrayList<Employee>();
@@ -68,6 +76,16 @@ public class Employee {
 	@JsonManagedReference(value="employee")
 	List<Vacation> vacations;
 
+	
+	
+
+	public List<VacationApproval> getVacationApproval() {
+		return vacationApproval;
+	}
+
+	public void setVacationApproval(List<VacationApproval> vacationApproval) {
+		this.vacationApproval = vacationApproval;
+	}
 
 	public List<Employee> getManagers() {
 		return managers;
