@@ -17,7 +17,7 @@ public class EmployeeService {
 	}
 	
 	public Employee findById(String id) {
-		return repository.findOne(Integer.parseInt(id));
+		return repository.findOne(id);
 	}
 	
 	public List<Employee> findEmployeesByName(String name) {
@@ -31,7 +31,7 @@ public class EmployeeService {
 	}
 	
 	public void deleteById(String inttger) {
-		 repository.delete(Integer.parseInt(inttger));
+		 repository.delete(inttger);
 	}
 
 	public void deleteAll() {

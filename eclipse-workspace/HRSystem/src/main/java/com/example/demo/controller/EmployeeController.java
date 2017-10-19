@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entities.Employee;
 import com.example.demo.entities.Role;
+import com.example.demo.entities.SickVacation;
 import com.example.demo.entities.Vacation;
 import com.example.demo.entities.VacationApproval;
 import com.example.demo.exceptions.AlreadyExistException;
@@ -101,6 +102,7 @@ public class EmployeeController {
 	     if (vacationApproval == null) 
 	    	 throw new EmployeeNotFoundException(id);
 	     
+	    
 	     vacationApproval.setApprove(true);
 	     
 	     approval.save(vacationApproval);
@@ -115,6 +117,7 @@ public class EmployeeController {
 	     return new ResponseEntity<List<Role>>(employee.getRoles(), HttpStatus.OK);
 
 	}
+    @PreAuthorize("hasRole('ADMIN')")
 	@RequestMapping(value = "/{id}/vacationApprovals/{approveId}/reject"  ,method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> rejectVacationApprovalsByEmployeeId(@PathVariable Integer id,@PathVariable Integer approveId){
 	    
